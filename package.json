@@ -1,0 +1,28 @@
+{
+  "name": "battleships",
+  "version": "1.0.0",
+  "description": "Odin practice - making full JavaScript Battleship game with Jest testing.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MicSparrow/battleships.git"
+  },
+  "author": "MicSparrow",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MicSparrow/battleships/issues"
+  },
+  "homepage": "https://github.com/MicSparrow/battleships#readme",
+  "devDependencies": {
+    "@babel/preset-env": "^7.15.0",
+    "jest": "^27.0.6",
+    "webpack": "^5.50.0",
+    "webpack-cli": "^4.7.2"
+  }
+}

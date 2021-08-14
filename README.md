@@ -1,0 +1,1 @@
+Odin practice - making full JavaScript Battleship game with Jest testing.

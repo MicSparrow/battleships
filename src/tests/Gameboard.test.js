@@ -1,96 +1,100 @@
-import Gameboard from '../Gameboard'
-import Ship from '../Ship'
+import Gameboard from "../modules/Gameboard";
 
-describe('Gameboard', () => {
-  let gameboard: Gameboard
-  let ship: Ship
-  let testObjectArray: object[][]
-  let testBooleanArray: boolean[][]
+test("check if gameboard has been succesfully initialized", () => {
+  const newGameboard = new Gameboard();
+  const gameboardArray = newGameboard.initializeGameboard();
 
-  beforeEach(() => {
-    gameboard = new Gameboard()
-    ship = new Ship(3)
-    testObjectArray = []
-    testBooleanArray = []
+  const checkElements = gameboardArray[0].concat(
+    gameboardArray[gameboardArray.length - 1]
+  );
+  expect(checkElements).toEqual([
+    0,
+    { isPlaced: false, isHit: false, shipID: null },
+    99,
+    { isPlaced: false, isHit: false, shipID: null },
+  ]);
+});
 
-    for (let i = 0; i < 10; i++) {
-      testObjectArray[i] = []
-      testBooleanArray[i] = []
-      for (let j = 0; j < 10; j++) {
-        testObjectArray[i][j] = null
-        testBooleanArray[i][j] = false
-      }
-    }
-  })
+test("test if a ship has been created and placed succesfully", () => {
+  const newGameboard = new Gameboard();
+  const gameboardArray = newGameboard.initializeGameboard();
 
-  test('creates and initializes a gameboard', () => {
-    expect(gameboard).toEqual({
-      board: testObjectArray,
-      missedShots: testBooleanArray,
-    })
-  })
+  const placingShip = newGameboard.placeShip(0, [1, 2, 3]);
 
-  test('places a ship', () => {
-    gameboard.placeShip(ship, 1, 1, true)
-    testObjectArray[1][1] = ship
-    testObjectArray[2][1] = ship
-    testObjectArray[3][1] = ship
-    expect(gameboard).toEqual({
-      board: testObjectArray,
-      missedShots: testBooleanArray,
-    })
-  })
+  expect(placingShip).toEqual([
+    [
+      1,
+      {
+        isPlaced: true,
+        isHit: false,
+        shipID: 0,
+      },
+    ],
+    [
+      2,
+      {
+        isPlaced: true,
+        isHit: false,
+        shipID: 0,
+      },
+    ],
+    [
+      3,
+      {
+        isPlaced: true,
+        isHit: false,
+        shipID: 0,
+      },
+    ],
+  ]);
+});
 
-  test('randomly places 5 ships', () => {
-    gameboard.placeShipsRandomly()
-    expect(gameboard.getEmptyFieldsAmount()).toBe(83)
-  })
+test("check if receive attack succesfully finds and hits a ship", () => {
+  const newGameboard = new Gameboard();
+  const gameboardArray = newGameboard.initializeGameboard();
+  newGameboard.placeShip(0, [1, 2, 3]);
+  expect(newGameboard.receiveAttack(1)).toBeTruthy();
+});
 
-  test('prevents ship placement outside gameboard', () => {
-    gameboard.placeShip(ship, 1, 1, true)
-    expect(gameboard.isPlacementPossible(ship, 8, 8, true)).toBe(false)
-    expect(gameboard.isPlacementPossible(ship, 10, 10, true)).toBe(false)
-  })
+test("check if a hit increases the hit variable and decreases the ship length", () => {
+  const newGameboard = new Gameboard();
+  const gameboardArray = newGameboard.initializeGameboard();
+  newGameboard.placeShip(0, [1, 2, 3]);
+  newGameboard.receiveAttack(1);
+  const total = newGameboard.shipList[0].length + newGameboard.hits;
+  expect(total).toEqual(3);
+});
 
-  test('prevents ship placement on taken fields', () => {
-    gameboard.placeShip(ship, 1, 1, true)
-    expect(gameboard.isPlacementPossible(ship, 1, 1, true)).toBe(false)
-    expect(gameboard.isPlacementPossible(ship, 2, 1, true)).toBe(false)
-    expect(gameboard.isPlacementPossible(ship, 3, 1, true)).toBe(false)
-  })
+test("check if receive attack succesfully finds and misses a ship", () => {
+  const newGameboard = new Gameboard();
+  const gameboardArray = newGameboard.initializeGameboard();
+  newGameboard.placeShip(0, [1, 2, 3]);
+  expect(newGameboard.receiveAttack(4)).toBeFalsy();
+});
 
-  test('prevents ship placement in direct neighbourhood of taken fields', () => {
-    gameboard.placeShip(ship, 1, 1, true)
-    expect(gameboard.isPlacementPossible(ship, 0, 0, true)).toBe(false)
-    expect(gameboard.isPlacementPossible(ship, 4, 2, true)).toBe(false)
-    expect(gameboard.isPlacementPossible(ship, 5, 2, true)).toBe(true)
-  })
+test("check if a miss decrements the miss variable and does not reduce length of ship", () => {
+  const newGameboard = new Gameboard();
+  const gameboardArray = newGameboard.initializeGameboard();
+  newGameboard.placeShip(0, [1, 2, 3]);
+  newGameboard.receiveAttack(4);
+  const total = newGameboard.shipList[0].length + newGameboard.hits;
+  expect(total).toEqual(3);
+});
 
-  test('receives attacks', () => {
-    gameboard.placeShip(ship, 1, 1, true)
-    gameboard.receiveAttack(3, 1)
-    expect(gameboard.board[3][1].hits.includes(2)).toBe(true)
-  })
+test("check if game is over when it should not be", () => {
+  const newGameboard = new Gameboard();
+  const gameboardArray = newGameboard.initializeGameboard();
+  newGameboard.placeShip(0, [1, 2, 3]);
+  newGameboard.receiveAttack(1);
+  expect(newGameboard.isGameOver()).toBeFalsy();
+});
 
-  test('keeps track of missed shots', () => {
-    gameboard.placeShip(ship, 1, 1, true)
-    gameboard.receiveAttack(1, 4)
-    expect(gameboard.missedShots[1][4]).toBe(true)
-  })
-
-  test('tells if game is over', () => {
-    expect(gameboard.isGameOver()).toBe(false)
-
-    gameboard.placeShip(ship, 1, 1, true)
-    expect(gameboard.isGameOver()).toBe(false)
-    gameboard.receiveAttack(1, 1)
-    gameboard.receiveAttack(2, 1)
-    gameboard.receiveAttack(3, 1)
-
-    gameboard.placeShip(new Ship(3), 5, 5, false)
-    gameboard.receiveAttack(5, 5)
-    gameboard.receiveAttack(5, 6)
-    gameboard.receiveAttack(5, 7)
-    expect(gameboard.isGameOver()).toBe(true)
-  })
-})
+test("check if game is over when it should be", () => {
+  const newGameboard = new Gameboard();
+  const gameboardArray = newGameboard.initializeGameboard();
+  newGameboard.placeShip(0, [1, 2, 3]);
+  newGameboard.receiveAttack(1);
+  newGameboard.receiveAttack(2);
+  newGameboard.receiveAttack(3);
+  expect(newGameboard.isGameOver()).toBeTruthy();
+});

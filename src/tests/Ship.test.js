@@ -1,32 +1,32 @@
-import Ship from '../Ship'
+import Ship from "../modules/Ship";
 
-describe('Ship', () => {
-  let ship: Ship
+test("check if ship has been created succesfully", () => {
+  const newShip = new Ship(0, 3, [1, 2, 3]);
+  expect(newShip).toEqual({ id: 0, length: 3, coords: [1, 2, 3] });
+});
 
-  beforeEach(() => {
-    ship = new Ship(3)
-  })
+test("check if a hit registers as a hit", () => {
+  const newShip = new Ship(0, 3, [1, 2, 3]);
+  expect(newShip.hit(2)).toBeTruthy();
+});
 
-  test('creates and initializes a ship', () => {
-    expect(ship).toEqual({ length: 3, hits: [] })
-  })
+test("check if a miss registers as a miss", () => {
+  const newShip = new Ship(0, 3, [1, 2, 3]);
+  expect(newShip.hit(4)).toBeFalsy();
+});
 
-  test('takes a hit', () => {
-    ship.hit(2)
-    expect(ship.hits).toContain(2)
-  })
+test("check if ship is sunk after being hit in all coords", () => {
+  const newShip = new Ship(0, 3, [1, 2, 3]);
+  newShip.hit(1);
+  newShip.hit(2);
+  newShip.hit(3);
+  expect(newShip.isSunk()).toBeTruthy();
+});
 
-  test('sinks', () => {
-    ship.hit(0)
-    ship.hit(1)
-    ship.hit(2)
-    expect(ship.isSunk()).toBe(true)
-  })
-
-  test('prevents being hit multiple times at the same spot', () => {
-    ship.hit(1)
-    ship.hit(1)
-    ship.hit(1)
-    expect(ship.hits.length).toBe(1)
-  })
-})
+test("check if ship is sunk after being hit in all coords (includes misses)", () => {
+  const newShip = new Ship(0, 3, [1, 2, 3]);
+  newShip.hit(1);
+  newShip.hit(2);
+  newShip.hit(5);
+  expect(newShip.isSunk()).toBeFalsy();
+});
